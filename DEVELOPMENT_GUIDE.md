@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-This project follows **Clean Architecture** principles with clear separation of concerns:
+This project follows **Clean Architecture** principles with **Functional Programming** patterns:
 
 ```
 src/
@@ -11,6 +11,19 @@ src/
 ├── infrastructure/  # External concerns (database, repositories)
 └── presentation/    # HTTP layer (controllers, routes)
 ```
+
+## Programming Paradigms
+
+### **Functional Programming**
+- **No Classes**: All code uses factory functions and arrow functions
+- **Immutable Data**: No `let` declarations or mutations
+- **Pure Functions**: Functions return new values without side effects
+- **Higher-Order Functions**: Functions that return configured functions
+
+### **Arrow Functions Only**
+- All functions use arrow syntax: `const fn = () => {}`
+- Consistent functional style throughout
+- No function declarations or class methods
 
 ## Layer Responsibilities
 
@@ -21,18 +34,18 @@ src/
 - **Rules**: No dependencies on other layers
 
 ### Application Layer (`src/application/`)
-- **Service Implementations**: Business logic implementation
+- **Service Factory Functions**: Business logic implementation
 - **Use Cases**: Orchestrate domain objects and repositories
 - **Rules**: Can depend on domain layer only
 
 ### Infrastructure Layer (`src/infrastructure/`)
-- **Repository Implementations**: Data access using Prisma
+- **Repository Factory Functions**: Data access using Prisma
 - **Database Configuration**: Prisma client setup
 - **Container**: Dependency injection setup
 - **Rules**: Can depend on domain and application layers
 
 ### Presentation Layer (`src/presentation/`)
-- **Controllers**: HTTP request/response handling
+- **Controller Factory Functions**: HTTP request/response handling
 - **Routes**: URL routing configuration
 - **App Configuration**: Express app setup
 - **Rules**: Can depend on all other layers
@@ -51,58 +64,64 @@ src/
    
    // 2. Define repository interface in src/domain/repositories/
    export interface NewEntityRepository {
-     create(data: CreateData): Promise<NewEntity>;
-     findById(id: string): Promise<NewEntity | null>;
+     create: (data: CreateData) => Promise<NewEntity>;
+     findById: (id: string) => Promise<NewEntity | null>;
    }
    
    // 3. Define service interface in src/domain/services/
    export interface NewEntityService {
-     createEntity(request: CreateRequest): Promise<CreateResponse>;
+     createEntity: (request: CreateRequest) => Promise<CreateResponse>;
    }
    ```
 
 2. **Implement Application Layer**:
    ```typescript
-   // src/application/services/NewEntityServiceImpl.ts
-   export class NewEntityServiceImpl implements NewEntityService {
-     constructor(private repository: NewEntityRepository) {}
-     
-     async createEntity(request: CreateRequest): Promise<CreateResponse> {
+   // src/application/services/NewEntityService.ts
+   export const createNewEntityService = (
+     repository: NewEntityRepository
+   ): NewEntityService => {
+     const createEntity = async (request: CreateRequest): Promise<CreateResponse> => {
        // Business logic here
-     }
-   }
+     };
+     
+     return { createEntity };
+   };
    ```
 
 3. **Implement Infrastructure**:
    ```typescript
    // src/infrastructure/repositories/PrismaNewEntityRepository.ts
-   export class PrismaNewEntityRepository implements NewEntityRepository {
-     constructor(private prisma: PrismaClient) {}
+   export const createPrismaNewEntityRepository = (
+     prisma: PrismaClient
+   ): NewEntityRepository => {
+     const create = async (data: CreateData): Promise<NewEntity> => {
+       return prisma.newEntity.create({ data });
+     };
      
-     async create(data: CreateData): Promise<NewEntity> {
-       return await this.prisma.newEntity.create({ data });
-     }
-   }
+     return { create, findById };
+   };
    ```
 
 4. **Add to Container**:
    ```typescript
    // src/infrastructure/container.ts
-   const newEntityRepository = new PrismaNewEntityRepository(prisma);
-   const newEntityService = new NewEntityServiceImpl(newEntityRepository);
-   const newEntityController = new NewEntityController(newEntityService);
+   const newEntityRepository = createPrismaNewEntityRepository(prisma);
+   const newEntityService = createNewEntityService(newEntityRepository);
+   const newEntityController = createNewEntityController(newEntityService);
    ```
 
 5. **Create Presentation Layer**:
    ```typescript
    // src/presentation/controllers/NewEntityController.ts
-   export class NewEntityController {
-     constructor(private service: NewEntityService) {}
-     
-     createEntity = async (req: Request, res: Response): Promise<void> => {
+   export const createNewEntityController = (
+     service: NewEntityService
+   ): NewEntityControllerType => {
+     const createEntity = async (req: Request, res: Response): Promise<void> => {
        // HTTP handling
      };
-   }
+     
+     return { createEntity };
+   };
    ```
 
 ### Database Changes
@@ -130,18 +149,22 @@ src/
 
 ```typescript
 // Service Layer - Throw descriptive errors
-if (!validator.isURL(longUrl)) {
-  throw new Error('Invalid URL provided');
-}
+const validateUrl = (longUrl: string) => {
+  if (!validator.isURL(longUrl)) {
+    throw new Error('Invalid URL provided');
+  }
+};
 
 // Controller Layer - Catch and return HTTP responses
-try {
-  const result = await this.service.method(data);
-  res.status(201).json(result);
-} catch (error) {
-  const message = error instanceof Error ? error.message : 'Internal server error';
-  res.status(400).json({ error: message });
-}
+const createShortUrl = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await service.createShortUrl(data);
+    res.status(201).json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    res.status(400).json({ error: message });
+  }
+};
 ```
 
 ## Code Standards
@@ -153,7 +176,7 @@ try {
 
 ### Modern ESLint Configuration
 Using ESLint v9 flat config (`eslint.config.js`) with:
-- `typescript-eslint` v7 for TypeScript support
+- `typescript-eslint` v8 for TypeScript support
 - Prettier integration via `eslint-config-prettier`
 - Type-aware linting with project references
 
@@ -187,7 +210,7 @@ npm run lint:fix     # ESLint fixes only
 ### ESLint v9 Features
 - **Flat Config**: Modern `eslint.config.js` format
 - **Better Performance**: Improved parsing and rule execution
-- **TypeScript Integration**: Native support via `typescript-eslint` v7
+- **TypeScript Integration**: Native support via `typescript-eslint` v8
 - **Simplified Setup**: No more `.eslintrc.json` complexity
 
 ### Configuration Files
@@ -195,28 +218,35 @@ npm run lint:fix     # ESLint fixes only
 - `.prettierrc` - Prettier formatting rules
 - `tsconfig.json` - TypeScript compiler options
 
+### Functional Programming Standards
+- **No Classes**: Use factory functions instead
+- **No `let`**: Use `const` and immutable patterns
+- **Arrow Functions**: All functions use arrow syntax
+- **Pure Functions**: No side effects or mutations
+- **Higher-Order Functions**: Functions returning configured functions
+
 ### TypeScript
 - Use strict mode (enabled in `tsconfig.json`)
 - Define interfaces for all data structures
 - Use async/await over promises
-- Prefer `const` over `let`
+- Prefer `const` over `let` (enforced by linting)
 
 ### Naming Conventions
-- **Files**: PascalCase for classes, camelCase for utilities
-- **Classes**: PascalCase (e.g., `UrlController`)
+- **Files**: PascalCase for types, camelCase for functions
+- **Factory Functions**: `createServiceName` pattern
 - **Interfaces**: PascalCase (e.g., `UrlRepository`)
-- **Methods**: camelCase (e.g., `createShortUrl`)
+- **Functions**: camelCase (e.g., `createShortUrl`)
 - **Constants**: UPPER_SNAKE_CASE
 
 ### Import Patterns
 ```typescript
-// Use path aliases
-import { Url } from '@/domain/entities/Url';
-import { UrlRepository } from '@/domain/repositories/UrlRepository';
+// Use path aliases with project name
+import { Url } from '@shorting-urls/domain/entities/Url';
+import { createUrlRepository } from '@shorting-urls/infrastructure/repositories/PrismaUrlRepository';
 
 // Group imports: external, internal, relative
 import express from 'express';
-import { UrlService } from '@/domain/services/UrlService';
+import { createUrlService } from '@shorting-urls/application/services/UrlServiceImpl';
 import { createContainer } from './container';
 ```
 
@@ -224,9 +254,9 @@ import { createContainer } from './container';
 
 ### Unit Tests Structure
 ```typescript
-// tests/unit/services/UrlServiceImpl.test.ts
-describe('UrlServiceImpl', () => {
-  let service: UrlServiceImpl;
+// tests/unit/services/UrlService.test.ts
+describe('UrlService', () => {
+  let service: UrlService;
   let mockRepository: jest.Mocked<UrlRepository>;
   
   beforeEach(() => {
@@ -235,7 +265,7 @@ describe('UrlServiceImpl', () => {
       findByShortCode: jest.fn(),
       // ...
     };
-    service = new UrlServiceImpl(mockRepository, 'http://test.com');
+    service = createUrlService(mockRepository, 'http://test.com');
   });
   
   describe('createShortUrl', () => {
@@ -287,45 +317,38 @@ nvm install          # Install Node.js 22 if not present
 
 ### Adding New API Endpoint
 1. Define in service interface
-2. Implement in service class
-3. Add controller method
-4. Add route in `urlRoutes.ts`
+2. Implement in service factory function
+3. Add controller function
+4. Add route in routing function
 5. Update container if needed
 
 ### Database Schema Changes
 1. Modify `prisma/schema.prisma`
 2. Run `npm run db:migrate`
 3. Update TypeScript interfaces
-4. Update repository implementations
+4. Update repository factory functions
 
 ### Adding Validation
 ```typescript
 // Use validator library in service layer
 import validator from 'validator';
 
-if (!validator.isURL(longUrl)) {
-  throw new Error('Invalid URL provided');
-}
+const validateInput = (longUrl: string) => {
+  if (!validator.isURL(longUrl)) {
+    throw new Error('Invalid URL provided');
+  }
+};
 ```
 
 ## Deployment
 
 ### Docker Multi-Stage Build
-The Dockerfile uses three optimized stages:
+The Dockerfile uses four optimized stages:
 
-1. **deps**: Production dependencies only
-   - Cached by `package.json` and `package-lock.json`
-   - Includes Prisma schema for client generation
-
-2. **builder**: Build stage
-   - Installs all dependencies (including dev)
-   - Generates Prisma client
-   - Compiles TypeScript to JavaScript
-
-3. **runtime**: Final production image
-   - Copies only production dependencies and built files
-   - Runs as non-root user
-   - Includes health checks
+1. **base**: Shared foundation with package files and `.nvmrc`
+2. **deps**: Production dependencies only
+3. **builder**: Build stage with all dependencies
+4. **runtime**: Final production image
 
 ### Docker Commands
 ```bash
@@ -376,4 +399,4 @@ The `.nvmrc` file is copied to the Docker image to:
 DEBUG=* npm run dev
 ```
 
-This guide ensures consistent development practices and helps maintain the clean architecture principles throughout the project lifecycle.
+This guide ensures consistent functional programming practices and helps maintain the clean architecture principles throughout the project lifecycle.
