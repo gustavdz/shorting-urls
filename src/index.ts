@@ -1,17 +1,17 @@
 import dotenv from 'dotenv';
 import type { Express } from 'express';
-import type { PrismaClient } from '@prisma/client';
 import { createApp } from '@shorting-urls/presentation/app';
 import { createContainer } from '@shorting-urls/infrastructure/container';
+import { disconnectPrisma } from '@shorting-urls/infrastructure/database/prisma';
 
 dotenv.config();
 
 const PORT = process.env.PORT ?? 3000;
 
-const setupGracefulShutdown = (prisma: PrismaClient) => {
+const setupGracefulShutdown = () => {
   const shutdown = async (signal: string) => {
     console.warn(`${signal} received, shutting down gracefully`);
-    await prisma.$disconnect();
+    await disconnectPrisma();
     process.exit(0);
   };
 
@@ -31,7 +31,7 @@ const bootstrap = () => {
     const container = createContainer();
     const app = createApp(container.urlController);
 
-    setupGracefulShutdown(container.prisma);
+    setupGracefulShutdown();
     startServer(app, PORT);
   } catch (error) {
     console.error('Failed to start server:', error);
