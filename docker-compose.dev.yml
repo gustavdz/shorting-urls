@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      target: builder
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Debug port
+
+  db:
+    ports:
+      - "5432:5432"

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+DEVELOPMENT_GUIDE.md
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Build output
+dist
+
+# Development files
+.eslintcache
+coverage
+*.log
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scripts
+scripts
+
+# Keep .nvmrc for Node.js version documentation
+!.nvmrc
