@@ -6,7 +6,7 @@ import unusedImports from 'eslint-plugin-unused-imports';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import importPlugin from 'eslint-plugin-import';
 
-export default tseslint.config(
+export default [
   {
     ignores: [
       'dist/**',
@@ -55,11 +55,8 @@ export default tseslint.config(
         'error',
         {
           groups: [
-            // External packages
             ['^\\w'],
-            // Internal packages (with @shorting-urls alias)
             ['^@shorting-urls/'],
-            // Relative imports
             ['^\\.\\./', '^\\./', '^\\./'],
           ],
         },
@@ -121,4 +118,4 @@ export default tseslint.config(
       'unused-imports/no-unused-vars': 'off',
     },
   }
-);
+];
