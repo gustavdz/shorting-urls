@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Url {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   shortCode String   @unique @map("short_code")
   longUrl   String   @map("long_url")
   clicks    Int      @default(0)
