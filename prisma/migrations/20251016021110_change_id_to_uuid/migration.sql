@@ -1,3 +1,0 @@
--- Change ID generation from cuid() to uuid() in Url model
--- This change affects new records only, existing records remain unchanged
--- Both cuid() and uuid() generate string IDs, so no database structure change needed
