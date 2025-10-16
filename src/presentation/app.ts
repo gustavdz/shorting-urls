@@ -1,6 +1,7 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import helmet from 'helmet';
+
 import { createUrlRoutes } from '@shorting-urls/presentation/routes/urlRoutes';
 import type { UrlControllerType } from '@shorting-urls/presentation/types/ControllerTypes';
 

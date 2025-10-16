@@ -34,7 +34,7 @@ const createPrismaConnection = () => {
 
 const { getPrismaClient, disconnectPrisma } = createPrismaConnection();
 
-export { getPrismaClient, disconnectPrisma };
+export { disconnectPrisma, getPrismaClient };
 
 // Export singleton instance
 export const prisma = getPrismaClient();

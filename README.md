@@ -115,12 +115,14 @@ The project follows clean architecture principles:
 
 ## Technologies
 
-- Node.js 22+
+- Node.js 22+ (ESM modules)
 - Express.js
-- TypeScript
+- TypeScript (strict mode)
 - Prisma ORM
 - PostgreSQL
-- Docker
+- Docker (multi-stage builds)
 - ESLint v9 (flat config)
-- Prettier
+- Prettier (integrated with ESLint)
+- Vitest (testing framework)
+- Faker.js (test data generation)
 - nanoid for short code generation

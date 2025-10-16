@@ -1,12 +1,13 @@
 import { nanoid } from 'nanoid';
 import validator from 'validator';
+
+import type { Url } from '@shorting-urls/domain/entities/Url';
+import type { UrlRepository } from '@shorting-urls/domain/repositories/UrlRepository';
 import type {
-  UrlService,
   CreateUrlRequest,
   CreateUrlResponse,
+  UrlService,
 } from '@shorting-urls/domain/services/UrlService';
-import type { UrlRepository } from '@shorting-urls/domain/repositories/UrlRepository';
-import type { Url } from '@shorting-urls/domain/entities/Url';
 
 export const createUrlService = (
   urlRepository: UrlRepository,

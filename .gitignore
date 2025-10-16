@@ -26,8 +26,11 @@ coverage/
 .eslintcache
 
 # IDE
-.vscode/
 .idea/
+
+# VS Code workspace files (keep settings, extensions, and launch.json)
+.vscode/tasks.json
+.vscode/*.code-workspace
 
 # OS
 .DS_Store

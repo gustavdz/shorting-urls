@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+
 import type { UrlService } from '@shorting-urls/domain/services/UrlService';
 import type { UrlControllerType } from '@shorting-urls/presentation/types/ControllerTypes';
 

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import type { UrlControllerType } from '@shorting-urls/presentation/types/ControllerTypes';
 
 export const createUrlRoutes = (urlController: UrlControllerType): Router => {

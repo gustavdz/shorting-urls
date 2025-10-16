@@ -171,21 +171,31 @@ const createShortUrl = async (req: Request, res: Response): Promise<void> => {
 
 ### Code Quality Tools
 - **ESLint v9**: Latest flat config format with TypeScript integration
-- **Prettier**: Code formatting with ESLint compatibility
+- **Prettier**: Code formatting integrated as ESLint rule
 - **TypeScript**: Strict type checking with enhanced compiler options
+- **Import Sorting**: Automatic import organization via ESLint
+- **Format on Save**: ESLint handles all formatting automatically
 
 ### Modern ESLint Configuration
 Using ESLint v9 flat config (`eslint.config.js`) with:
 - `typescript-eslint` v8 for TypeScript support
-- Prettier integration via `eslint-config-prettier`
+- Prettier integration via `eslint-plugin-prettier`
+- Import sorting via `eslint-plugin-simple-import-sort`
+- Unused import removal via `eslint-plugin-unused-imports`
 - Type-aware linting with project references
 
 ### Unified Workflow
 ```bash
-npm run check-all    # Type check + lint + format check
-npm run format       # Prettier format + ESLint fix
-npm run lint:fix     # ESLint auto-fix only
+npm run check-all    # Type check + lint + format check + tests
+npm run format       # Prettier format + ESLint fix + import sorting
+npm run lint:fix     # ESLint auto-fix (includes Prettier + imports)
 ```
+
+### Format on Save (VS Code)
+- **ESLint as formatter**: Handles TypeScript/JavaScript files
+- **Automatic import sorting**: Organizes imports on save
+- **Prettier integration**: Formatting applied via ESLint
+- **One-pass formatting**: All fixes applied simultaneously
 
 ### Pre-commit Workflow
 ```bash
@@ -211,12 +221,32 @@ npm run lint:fix     # ESLint fixes only
 - **Flat Config**: Modern `eslint.config.js` format
 - **Better Performance**: Improved parsing and rule execution
 - **TypeScript Integration**: Native support via `typescript-eslint` v8
-- **Simplified Setup**: No more `.eslintrc.json` complexity
+- **Import Sorting**: Automatic import organization
+- **Prettier Integration**: Formatting as ESLint rule
+- **Format on Save**: ESLint handles all formatting
 
 ### Configuration Files
-- `eslint.config.js` - ESLint v9 flat configuration
+- `eslint.config.js` - ESLint v9 flat configuration with Prettier
 - `.prettierrc` - Prettier formatting rules
-- `tsconfig.json` - TypeScript compiler options
+- `tsconfig.json` - TypeScript ESM configuration
+- `.vscode/settings.json` - Format on save with ESLint
+
+### Import Patterns
+```typescript
+// Imports are automatically sorted in this order:
+
+// 1. External packages
+import { nanoid } from 'nanoid';
+import validator from 'validator';
+
+// 2. Internal packages (with @shorting-urls alias)
+import type { Url } from '@shorting-urls/domain/entities/Url';
+import { UrlRepository } from '@shorting-urls/domain/repositories/UrlRepository';
+
+// 3. Relative imports
+import { createUrlService } from '../UrlServiceImpl';
+import { setupTest } from './helpers';
+```
 
 ### Functional Programming Standards
 - **No Classes**: Use factory functions instead
@@ -252,28 +282,50 @@ import { createContainer } from './container';
 
 ## Testing Guidelines
 
+### Testing Framework
+- **Vitest**: Modern testing framework with ESM support
+- **MockDeep**: Type-safe deep mocking for Prisma
+- **Faker.js**: Realistic test data generation
+- **Functional Testing**: Tests factory functions instead of classes
+
+### Test Structure
+```
+src/
+├── application/services/__tests__/
+├── infrastructure/repositories/__tests__/
+├── presentation/controllers/__tests__/
+└── test/
+    ├── fixtures/     # Dynamic test data with Faker.js
+    └── mocks/        # Reusable mock utilities
+```
+
 ### Unit Tests Structure
 ```typescript
 // tests/unit/services/UrlService.test.ts
 describe('UrlService', () => {
-  let service: UrlService;
-  let mockRepository: jest.Mocked<UrlRepository>;
-  
-  beforeEach(() => {
-    mockRepository = {
-      create: jest.fn(),
-      findByShortCode: jest.fn(),
-      // ...
-    };
-    service = createUrlService(mockRepository, 'http://test.com');
-  });
+  const setupTest = () => {
+    const mockRepository = createUrlRepositoryMock();
+    const urlService = createUrlService(mockRepository, 'http://test.com');
+    return { mockRepository, urlService };
+  };
   
   describe('createShortUrl', () => {
     it('should create short URL with valid input', async () => {
-      // Test implementation
+      const { mockRepository, urlService } = setupTest();
+      const mockUrl = createMockUrl();
+      
+      // Test implementation with dynamic data
     });
   });
 });
+```
+
+### Testing Commands
+```bash
+npm run test         # Run tests in watch mode
+npm run test:run     # Run tests once
+npm run test:coverage # Run tests with coverage report
+npm run test:ui      # Open Vitest UI
 ```
 
 ### Integration Tests
@@ -294,16 +346,19 @@ BASE_URL="http://localhost:3000"
 ### Development Commands
 ```bash
 npm run dev          # Start development server
-npm run build        # Build for production
+npm run build        # Build for production (ESM output)
 npm run db:generate  # Generate Prisma client
 npm run db:migrate   # Run database migrations
 npm run db:studio    # Open Prisma Studio
-npm run lint         # Run ESLint (includes Prettier checks)
-npm run lint:fix     # Fix ESLint and Prettier issues automatically
-npm run format       # Alias for lint:fix
-npm run format:check # Alias for lint
+npm run lint         # Run ESLint (includes import sorting)
+npm run lint:fix     # Fix ESLint + Prettier + imports automatically
+npm run format       # Prettier + ESLint fix + import sorting
+npm run format:check # Check formatting and linting
 npm run type-check   # Run TypeScript type checking
-npm run check-all    # Run type-check + lint together
+npm run check-all    # Run type-check + lint + format + tests
+npm run test         # Run tests in watch mode
+npm run test:run     # Run tests once
+npm run test:coverage # Run tests with coverage
 ```
 
 ### Node.js Version Management

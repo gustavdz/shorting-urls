@@ -1,6 +1,6 @@
+import { createUrlService } from '@shorting-urls/application/services/UrlServiceImpl';
 import { getPrismaClient } from '@shorting-urls/infrastructure/database/prisma';
 import { createPrismaUrlRepository } from '@shorting-urls/infrastructure/repositories/PrismaUrlRepository';
-import { createUrlService } from '@shorting-urls/application/services/UrlServiceImpl';
 import { createUrlController } from '@shorting-urls/presentation/controllers/UrlController';
 
 export const createContainer = () => {

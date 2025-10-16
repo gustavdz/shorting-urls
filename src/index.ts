@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
 import type { Express } from 'express';
-import { createApp } from '@shorting-urls/presentation/app';
+
 import { createContainer } from '@shorting-urls/infrastructure/container';
 import { disconnectPrisma } from '@shorting-urls/infrastructure/database/prisma';
+import { createApp } from '@shorting-urls/presentation/app';
 
 dotenv.config();
 

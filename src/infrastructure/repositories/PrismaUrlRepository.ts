@@ -1,6 +1,7 @@
-import type { PrismaClient } from '@prisma/client';
-import type { UrlRepository } from '@shorting-urls/domain/repositories/UrlRepository';
 import type { Url } from '@shorting-urls/domain/entities/Url';
+import type { UrlRepository } from '@shorting-urls/domain/repositories/UrlRepository';
+
+import type { PrismaClient } from '@prisma/client';
 
 export const createPrismaUrlRepository = (
   prisma: PrismaClient
